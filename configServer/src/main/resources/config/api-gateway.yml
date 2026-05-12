@@ -6,28 +6,39 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8181/realms/fitness-oauth2/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8181/realms/master
+
   cloud:
     gateway:
-      server:
-        webflux:
-          routes:
-            - id: user-service
-              uri: lb://USER-SERVICE
-              predicates:
-                - Path=/api/users/**
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/users/**
 
-            - id: activity-service
-              uri: lb://ACTIVITY-SERVICE
-              predicates:
-                - Path=/api/activities/**
+        - id: activity-service
+          uri: lb://ACTIVITY-SERVICE
+          predicates:
+            - Path=/api/activities/**
 
-            - id: ai-service
-              uri: lb://AI-SERVICE
-              predicates:
-                - Path=/api/recommendations/**
+        - id: ai-service
+          uri: lb://AI-SERVICE
+          predicates:
+            - Path=/api/recommendations/**
 
+        - id: keycloak-proxy
+          uri: http://localhost:8181
+          predicates:
+            - Path=/keycloak/**
+          filters:
+            - RewritePath=/keycloak/(?<remaining>.*), /${remaining}
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.security.oauth2.jwt: DEBUG

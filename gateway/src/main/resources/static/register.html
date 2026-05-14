@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="description" content="Create your FitPulse account — AI-powered fitness tracking."/>
+  <title>Register — FitPulse</title>
+  <link rel="stylesheet" href="/styles.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💪</text></svg>"/>
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-container fade-in">
+      <!-- LEFT HERO -->
+      <div class="login-hero">
+        <h1>Start Your<br/>Fitness Journey</h1>
+        <p>Create a free account and unlock the full power of AI-driven fitness tracking.</p>
+        <ul class="feature-list">
+          <li><span>✨</span> Free to use — no credit card required</li>
+          <li><span>🤖</span> AI analyzes every workout you log</li>
+          <li><span>📈</span> Track progress with visual dashboards</li>
+          <li><span>🔐</span> Your data is secure with enterprise auth</li>
+        </ul>
+      </div>
+
+      <!-- RIGHT FORM -->
+      <div class="login-form-panel">
+        <h2>Create Account</h2>
+        <p class="subtitle">Fill in your details to get started</p>
+
+        <form id="registerForm" autocomplete="on">
+          <div class="flex gap-1">
+            <div class="form-group" style="flex:1">
+              <label class="form-label" for="firstName">First Name</label>
+              <input class="form-input" id="firstName" type="text" placeholder="John" required/>
+            </div>
+            <div class="form-group" style="flex:1">
+              <label class="form-label" for="lastName">Last Name</label>
+              <input class="form-input" id="lastName" type="text" placeholder="Doe" required/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-input" id="email" type="email" placeholder="john@example.com" required/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regUsername">Username</label>
+            <input class="form-input" id="regUsername" type="text" placeholder="Choose a username" required autocomplete="username"/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regPassword">Password</label>
+            <input class="form-input" id="regPassword" type="password" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password"/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="confirmPassword">Confirm Password</label>
+            <input class="form-input" id="confirmPassword" type="password" placeholder="Re-enter password" required minlength="6" autocomplete="new-password"/>
+          </div>
+
+          <button class="btn btn-primary w-full btn-lg mt-2" type="submit" id="registerBtn">
+            Create Account
+          </button>
+          <p id="registerError" class="hidden" style="color:var(--danger);font-size:0.85rem;margin-top:12px;text-align:center;"></p>
+          <p id="registerSuccess" class="hidden" style="color:var(--success);font-size:0.85rem;margin-top:12px;text-align:center;"></p>
+        </form>
+
+        <div class="divider">already have an account?</div>
+
+        <a href="/index.html" class="btn btn-secondary w-full">
+          Sign In Instead
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+  <script>
+    // If already logged in, go to dashboard
+    if (isLoggedIn()) { window.location.href = '/dashboard.html'; }
+
+    const form = document.getElementById('registerForm');
+    const regError = document.getElementById('registerError');
+    const regSuccess = document.getElementById('registerSuccess');
+    const regBtn = document.getElementById('registerBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      regError.classList.add('hidden');
+      regSuccess.classList.add('hidden');
+
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const username = document.getElementById('regUsername').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirmPw = document.getElementById('confirmPassword').value;
+
+      // Validate
+      if (password !== confirmPw) {
+        regError.textContent = 'Passwords do not match';
+        regError.classList.remove('hidden');
+        return;
+      }
+      if (password.length < 6) {
+        regError.textContent = 'Password must be at least 6 characters';
+        regError.classList.remove('hidden');
+        return;
+      }
+
+      regBtn.disabled = true;
+      regBtn.textContent = 'Creating account...';
+
+      try {
+        // Step 1: Get admin token from Keycloak
+        const adminToken = await getKeycloakAdminToken();
+
+        // Step 2: Create user in Keycloak
+        await createKeycloakUser(adminToken, { username, email, firstName, lastName, password });
+
+        regSuccess.textContent = 'Account created! Logging you in...';
+        regSuccess.classList.remove('hidden');
+        showToast('Account created successfully! 🎉', 'success');
+
+        // Step 3: Auto-login
+        const tok = await keycloakLogin(username, password);
+        if (tok && tok.access_token) {
+          setToken(tok.access_token);
+          const payload = parseJwt(tok.access_token) || {};
+          setUser({
+            id: payload.sub,
+            username: payload.preferred_username,
+            email: payload.email,
+            firstName: payload.given_name || firstName,
+            lastName: payload.family_name || lastName
+          });
+          setTimeout(() => { window.location.href = '/dashboard.html'; }, 800);
+        }
+      } catch (err) {
+        console.error('Registration error:', err);
+        regError.textContent = err.message;
+        regError.classList.remove('hidden');
+        regBtn.disabled = false;
+        regBtn.textContent = 'Create Account';
+      }
+    });
+
+    // ===== Keycloak Admin API (proxied through gateway) =====
+
+    async function getKeycloakAdminToken() {
+      const body = new URLSearchParams();
+      body.set('grant_type', 'password');
+      body.set('client_id', 'admin-cli');
+      body.set('username', KEYCLOAK_ADMIN_USER);
+      body.set('password', KEYCLOAK_ADMIN_PASS);
+
+      const res = await fetch('/keycloak/realms/master/protocol/openid-connect/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body
+      });
+      if (!res.ok) throw new Error('Failed to get admin token. Check Keycloak admin credentials in app.js.');
+      const data = await res.json();
+      return data.access_token;
+    }
+
+    async function createKeycloakUser(adminToken, user) {
+      const res = await fetch('/keycloak/admin/realms/master/users', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + adminToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: user.username,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          enabled: true,
+          emailVerified: true,
+          credentials: [{
+            type: 'password',
+            value: user.password,
+            temporary: false
+          }]
+        })
+      });
+
+      if (res.status === 409) throw new Error('Username or email already exists. Try signing in instead.');
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error('Failed to create account: ' + (text || res.statusText));
+      }
+    }
+  </script>
+</body>
+</html>

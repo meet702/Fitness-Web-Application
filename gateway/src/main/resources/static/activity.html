@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="description" content="Log a new fitness activity and get AI-powered recommendations."/>
+  <title>Log Activity — FitPulse</title>
+  <link rel="stylesheet" href="/styles.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💪</text></svg>"/>
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="page">
+    <div class="container">
+      <!-- HEADER -->
+      <div class="page-header fade-in">
+        <div>
+          <h2>Log Activity</h2>
+          <p>Record your workout and get AI-powered insights</p>
+        </div>
+        <a href="/dashboard.html" class="btn btn-secondary">← Back to Dashboard</a>
+      </div>
+
+      <div class="grid-2">
+        <!-- LEFT: Form -->
+        <div class="glass-static fade-in fade-in-delay-1" style="padding:28px;">
+          <h3 style="margin-bottom:20px;">New Activity</h3>
+
+          <form id="activityForm">
+            <!-- Activity Type Grid -->
+            <div class="form-group">
+              <label class="form-label">Activity Type</label>
+              <div class="type-grid" id="typeGrid"></div>
+              <input type="hidden" id="activityType" value=""/>
+            </div>
+
+            <!-- Duration & Calories -->
+            <div class="flex gap-2">
+              <div class="form-group" style="flex:1">
+                <label class="form-label" for="duration">Duration (min)</label>
+                <input class="form-input" id="duration" type="number" min="1" placeholder="e.g. 45" required/>
+              </div>
+              <div class="form-group" style="flex:1">
+                <label class="form-label" for="calories">Calories Burned</label>
+                <input class="form-input" id="calories" type="number" min="0" placeholder="e.g. 350" required/>
+              </div>
+            </div>
+
+            <!-- Start Time -->
+            <div class="form-group">
+              <label class="form-label" for="startTime">Start Time</label>
+              <input class="form-input" id="startTime" type="datetime-local"/>
+            </div>
+
+            <!-- Additional Metrics -->
+            <div class="form-group">
+              <label class="form-label">Additional Metrics (optional)</label>
+              <div class="metric-chips" id="metricsChips"></div>
+              <div class="flex gap-1 mt-1">
+                <input class="form-input" id="metricKey" placeholder="Key (e.g. distance)" style="flex:1"/>
+                <input class="form-input" id="metricVal" placeholder="Value (e.g. 5.2 km)" style="flex:1"/>
+                <button type="button" class="btn btn-secondary btn-sm" id="addMetricBtn">+ Add</button>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="flex gap-1 mt-2">
+              <button type="submit" class="btn btn-primary btn-lg" style="flex:1" id="submitBtn">
+                🏋️ Log Activity
+              </button>
+              <button type="button" class="btn btn-secondary btn-lg" id="clearBtn">Clear</button>
+            </div>
+            <p id="formError" class="hidden" style="color:var(--danger);font-size:0.85rem;margin-top:12px;"></p>
+          </form>
+        </div>
+
+        <!-- RIGHT: Recommendation Result -->
+        <div class="fade-in fade-in-delay-2">
+          <div class="glass-static rec-panel" id="recResult">
+            <div class="empty-state">
+              <div class="empty-icon">🤖</div>
+              <h3>AI Recommendations</h3>
+              <p>Log an activity to receive personalized AI-powered analysis, improvement tips, workout suggestions, and safety guidelines.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+  <script src="/activity.js"></script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="description" content="FitPulse — AI-powered fitness tracking. Log workouts, get personalized recommendations."/>
+  <title>FitPulse — AI Fitness Tracker</title>
+  <link rel="stylesheet" href="/styles.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💪</text></svg>"/>
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-container fade-in">
+      <!-- LEFT HERO -->
+      <div class="login-hero">
+        <h1>Track. Analyze.<br/>Improve.</h1>
+        <p>Your AI-powered fitness companion that helps you reach your peak performance.</p>
+        <ul class="feature-list">
+          <li><span>🏋️</span> Log any workout — running, cycling, yoga & more</li>
+          <li><span>🤖</span> Get AI-powered personalized recommendations</li>
+          <li><span>📊</span> Visual analytics & progress tracking</li>
+          <li><span>🔒</span> Secure authentication with Keycloak</li>
+        </ul>
+      </div>
+
+      <!-- RIGHT FORM -->
+      <div class="login-form-panel">
+        <h2>Welcome back</h2>
+        <p class="subtitle">Sign in to your FitPulse account</p>
+
+        <form id="loginForm" autocomplete="on">
+          <div class="form-group">
+            <label class="form-label" for="username">Username</label>
+            <input class="form-input" id="username" type="text" placeholder="Enter your username" required autocomplete="username"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input class="form-input" id="password" type="password" placeholder="Enter your password" required autocomplete="current-password"/>
+          </div>
+          <button class="btn btn-primary w-full btn-lg mt-2" type="submit" id="loginBtn">
+            Sign In
+          </button>
+          <p id="loginError" class="hidden" style="color:var(--danger);font-size:0.85rem;margin-top:12px;text-align:center;"></p>
+        </form>
+
+        <div class="divider">or</div>
+
+        <button class="btn btn-secondary w-full" id="guestBtn" type="button">
+          Continue as Guest (Demo)
+        </button>
+
+        <p style="text-align:center;margin-top:24px;font-size:0.85rem;color:var(--text-secondary);">
+          Don't have an account? <a href="/register.html" style="color:var(--accent-2);text-decoration:none;font-weight:600;">Create one</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+  <script>
+    // If already logged in, redirect to dashboard
+    if (isLoggedIn()) {
+      window.location.href = '/dashboard.html';
+    }
+
+    const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
+    const loginBtn = document.getElementById('loginBtn');
+    const guestBtn = document.getElementById('guestBtn');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.classList.add('hidden');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Signing in...';
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const tok = await keycloakLogin(username, password);
+        if (!tok || !tok.access_token) throw new Error('No access token returned');
+        setToken(tok.access_token);
+
+        // Parse JWT and store user info
+        const payload = parseJwt(tok.access_token) || {};
+        setUser({
+          id: payload.sub,
+          username: payload.preferred_username,
+          email: payload.email,
+          firstName: payload.given_name || payload.preferred_username,
+          lastName: payload.family_name
+        });
+
+        showToast('Welcome back, ' + (payload.given_name || payload.preferred_username || 'User') + '!', 'success');
+        setTimeout(() => { window.location.href = '/dashboard.html'; }, 600);
+      } catch (err) {
+        loginError.textContent = err.message;
+        loginError.classList.remove('hidden');
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In';
+      }
+    });
+
+    guestBtn.addEventListener('click', () => {
+      // Demo mode — set a fake token marker
+      setToken('guest');
+      setUser({ id: 'guest', username: 'Guest', firstName: 'Guest', lastName: 'User' });
+      showToast('Welcome, Guest! Some features may be limited.', 'info');
+      setTimeout(() => { window.location.href = '/dashboard.html'; }, 600);
+    });
+  </script>
+</body>
+</html>

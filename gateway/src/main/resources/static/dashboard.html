@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="description" content="FitPulse Dashboard — View your fitness stats, activities and AI recommendations."/>
+  <title>Dashboard — FitPulse</title>
+  <link rel="stylesheet" href="/styles.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💪</text></svg>"/>
+</head>
+<body>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="page">
+    <div class="container">
+      <!-- HEADER -->
+      <div class="page-header fade-in">
+        <div>
+          <h2 id="greeting">Good morning</h2>
+          <p>Here's your fitness overview</p>
+        </div>
+        <a href="/activity.html" class="btn btn-primary">
+          <span>+</span> Log Activity
+        </a>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-grid mb-3" id="statsGrid">
+        <div class="stat-card glass fade-in fade-in-delay-1">
+          <div class="stat-icon purple">🏋️</div>
+          <div class="stat-value" id="totalActivities">0</div>
+          <div class="stat-label">Total Activities</div>
+        </div>
+        <div class="stat-card glass fade-in fade-in-delay-2">
+          <div class="stat-icon green">🔥</div>
+          <div class="stat-value" id="totalCalories">0</div>
+          <div class="stat-label">Calories Burned</div>
+        </div>
+        <div class="stat-card glass fade-in fade-in-delay-3">
+          <div class="stat-icon blue">⏱️</div>
+          <div class="stat-value" id="totalDuration">0</div>
+          <div class="stat-label">Minutes Active</div>
+        </div>
+        <div class="stat-card glass fade-in fade-in-delay-4">
+          <div class="stat-icon orange">📊</div>
+          <div class="stat-value" id="topActivity">—</div>
+          <div class="stat-label">Top Activity</div>
+        </div>
+      </div>
+
+      <!-- MAIN GRID -->
+      <div class="grid-3">
+        <!-- LEFT: Activities -->
+        <div class="fade-in fade-in-delay-2">
+          <div class="section-title">📋 Recent Activities</div>
+          <div id="activitiesList" class="activity-list">
+            <div class="loading-overlay"><div class="spinner"></div><span>Loading activities...</span></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Chart + Recommendations -->
+        <div class="fade-in fade-in-delay-3 flex flex-col gap-2">
+          <div>
+            <div class="section-title">📊 Activity Breakdown</div>
+            <div class="glass-static chart-container" id="chartContainer">
+              <div class="loading-overlay"><div class="spinner"></div></div>
+            </div>
+          </div>
+          <div>
+            <div class="section-title">🤖 Latest Recommendations</div>
+            <div id="recsContainer" class="glass-static rec-panel">
+              <div class="loading-overlay"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL PANEL -->
+  <div class="detail-overlay" id="detailOverlay"></div>
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-header">
+      <h3 id="detailTitle">Activity Details</h3>
+      <button class="detail-close" id="detailClose">&times;</button>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+
+  <script src="/app.js"></script>
+  <script src="/dashboard.js"></script>
+</body>
+</html>

@@ -6,7 +6,7 @@
   <meta name="description" content="Create your FitPulse account — AI-powered fitness tracking."/>
   <title>Register — FitPulse</title>
   <link rel="stylesheet" href="/styles.css"/>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💪</text></svg>"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>"/>
 </head>
 <body>
   <div class="login-page">
@@ -17,7 +17,7 @@
         <p>Create a free account and unlock the full power of AI-driven fitness tracking.</p>
         <ul class="feature-list">
           <li><span>✨</span> Free to use — no credit card required</li>
-          <li><span>🤖</span> AI analyzes every workout you log</li>
+          <li><span>✨</span> AI analyzes every workout you log</li>
           <li><span>📈</span> Track progress with visual dashboards</li>
           <li><span>🔐</span> Your data is secure with enterprise auth</li>
         </ul>
@@ -120,24 +120,12 @@
         // Step 2: Create user in Keycloak
         await createKeycloakUser(adminToken, { username, email, firstName, lastName, password });
 
-        regSuccess.textContent = 'Account created! Logging you in...';
+        regSuccess.textContent = 'Account created! Redirecting to login...';
         regSuccess.classList.remove('hidden');
-        showToast('Account created successfully! 🎉', 'success');
+        showToast('Account created successfully! Please login with your credentials. 🎉', 'success');
 
-        // Step 3: Auto-login
-        const tok = await keycloakLogin(username, password);
-        if (tok && tok.access_token) {
-          setToken(tok.access_token);
-          const payload = parseJwt(tok.access_token) || {};
-          setUser({
-            id: payload.sub,
-            username: payload.preferred_username,
-            email: payload.email,
-            firstName: payload.given_name || firstName,
-            lastName: payload.family_name || lastName
-          });
-          setTimeout(() => { window.location.href = '/dashboard.html'; }, 800);
-        }
+        // Redirect to login page after a short delay
+        setTimeout(() => { window.location.href = '/index.html'; }, 2000);
       } catch (err) {
         console.error('Registration error:', err);
         regError.textContent = err.message;

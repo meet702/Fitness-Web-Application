@@ -156,7 +156,7 @@
       try {
         const rec = await apiFetch(`/api/recommendations/activity/${activityId}`);
         renderFullRec(container, rec);
-        showToast('AI recommendation ready! 🤖', 'success');
+        showToast('AI recommendation ready! ✨', 'success');
       } catch (err) {
         if (attempts < maxAttempts) {
           container.innerHTML = `
@@ -186,7 +186,7 @@
     let html = '<div style="padding:4px;">';
 
     html += `<div class="flex items-center gap-2 mb-3">
-      <span style="font-size:1.5rem">🤖</span>
+      <span style="font-size:1.5rem">✨</span>
       <div>
         <h3 style="margin:0;font-size:1.1rem;">AI Analysis</h3>
         <span class="badge badge-purple">${rec.activityType || 'Activity'}</span>

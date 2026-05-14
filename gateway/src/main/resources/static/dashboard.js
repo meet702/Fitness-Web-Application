@@ -94,7 +94,7 @@
             <div class="activity-stat-value">${a.caloriesBurned || 0}<span style="font-size:0.7rem;font-weight:400;color:var(--text-muted)"> kcal</span></div>
             <div class="activity-stat-label">Calories</div>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();fetchRecForActivity('${a.id || a.Id}')">🤖 AI</button>
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();fetchRecForActivity('${a.id || a.Id}')">✨ AI</button>
         </div>
       </div>
     `).join('');
@@ -132,19 +132,19 @@
     const container = document.getElementById('recsContainer');
     const userId = getUserId();
     if (!userId || userId === 'guest') {
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">🤖</div><p>Log an activity to get AI recommendations</p></div>';
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div><p>Log an activity to get AI recommendations</p></div>';
       return;
     }
     try {
       const recs = await apiFetch(`/api/recommendations/user/${userId}`);
       if (!Array.isArray(recs) || recs.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-icon">🤖</div><p>No recommendations yet. Log an activity!</p></div>';
+        container.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div><p>No recommendations yet. Log an activity!</p></div>';
         return;
       }
       const latest = recs[recs.length - 1];
       renderRecPanel(container, latest);
     } catch (err) {
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">🤖</div><p>Could not load recommendations</p></div>';
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div><p>Could not load recommendations</p></div>';
     }
   }
 
@@ -210,7 +210,7 @@
             ${activity.additionalMetrics ? `<div style="margin-top:8px">📎 Metrics: ${JSON.stringify(activity.additionalMetrics)}</div>` : ''}
           </div>
         </div>
-        <button class="btn btn-primary w-full mb-2" onclick="fetchRecForActivityDetail('${activityId}')">🤖 Get AI Recommendation</button>
+        <button class="btn btn-primary w-full mb-2" onclick="fetchRecForActivityDetail('${activityId}')">✨ Get AI Recommendation</button>
         <div id="detailRec"></div>
       `;
       detailContent.innerHTML = html;
@@ -239,7 +239,7 @@
       renderRecPanel(container, rec);
       showToast('Recommendation loaded!', 'success');
     } catch (err) {
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">🤖</div><p>No recommendation available yet.</p></div>';
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div><p>No recommendation available yet.</p></div>';
       showToast('Recommendation not ready yet', 'info');
     }
   };
